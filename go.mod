@@ -1,4 +1,4 @@
-module products-quote-go
+module github.com/alejo-lapix/products-quote-go
 
 go 1.12
 
