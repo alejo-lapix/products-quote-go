@@ -13,6 +13,8 @@ github.com/alejo-lapix/related-products-go v1.0.3 h1:M4rDf5uxZKmx1sMYikamGjLASW2
 github.com/alejo-lapix/related-products-go v1.0.3/go.mod h1:dpWy1LXirr/hkjl1x7wIY0WnEPEqC7NNWJY45mztU68=
 github.com/alejo-lapix/related-products-go v1.0.4 h1:9JgmLpHBRJI29hksvThz9BCar0sGlg8gYEKqkk9EFnQ=
 github.com/alejo-lapix/related-products-go v1.0.4/go.mod h1:dpWy1LXirr/hkjl1x7wIY0WnEPEqC7NNWJY45mztU68=
+github.com/alejo-lapix/related-products-go v1.0.5 h1:30qdOwN2qP2pgqI7OiLrX+C1exRjlxaMdvatAbjS5Ao=
+github.com/alejo-lapix/related-products-go v1.0.5/go.mod h1:dpWy1LXirr/hkjl1x7wIY0WnEPEqC7NNWJY45mztU68=
 github.com/aws/aws-sdk-go v1.23.3 h1:Ty/4P6tOFJkDnKDrFJWnveznvESblf8QOheD1CwQPDU=
 github.com/aws/aws-sdk-go v1.23.3/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/go-playground/locales v0.12.1 h1:2FITxuFt/xuCNP1Acdhv62OzaCiviiE4kotfhkmOqEc=
