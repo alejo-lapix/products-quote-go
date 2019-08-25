@@ -14,11 +14,6 @@ type Customer struct {
 	Phone *string
 }
 
-type Location struct {
-	Country *loc.Country
-	Zone    *loc.Zone
-}
-
 type RelatedProducts struct {
 	PrimaryProduct     *ProductRelation
 	AssociatedProducts []*ProductRelation
@@ -37,7 +32,7 @@ type Notificated struct {
 type Quote struct {
 	ID              *string
 	Customer        *Customer
-	Location        *Location
+	Zone            *loc.Zone
 	RelatedProducts *RelatedProducts
 	Notificated     *Notificated
 	CreatedAt       *string
@@ -47,14 +42,14 @@ type QuoteRepository interface {
 	Store(*Quote) error
 }
 
-func NewQuote(customer *Customer, location *Location, relatedProducts *RelatedProducts, notificated *Notificated) *Quote {
+func NewQuote(customer *Customer, zone *loc.Zone, relatedProducts *RelatedProducts, notificated *Notificated) *Quote {
 	id := uuid.New().String()
 	createdAt := time.Now().Format(time.RFC3339)
 
 	return &Quote{
 		ID:              &id,
 		Customer:        customer,
-		Location:        location,
+		Zone:            zone,
 		RelatedProducts: relatedProducts,
 		Notificated:     notificated,
 		CreatedAt:       &createdAt,
