@@ -11,6 +11,7 @@ type QuoteService struct {
 	userRepository    responsibles.UserRepository
 	groupRepository   groups.GroupRepository
 	productRepository products.ProductRepository
+	quoteRepository   QuoteRepository
 }
 
 func (service QuoteService) NewQuote(primaryProduct *products.Product, amount *float64, customer *Customer, zone *locations.Zone) (*Quote, error) {
@@ -43,5 +44,13 @@ func (service QuoteService) NewQuote(primaryProduct *products.Product, amount *f
 		return nil, err
 	}
 
-	return NewQuote(customer, zone, relatedProducts, notification), nil
+	quote := NewQuote(customer, zone, relatedProducts, notification)
+
+	err = service.quoteRepository.Store(quote)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return quote, nil
 }

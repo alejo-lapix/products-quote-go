@@ -38,6 +38,20 @@ type Quote struct {
 	CreatedAt       *string
 }
 
+func (quote *Quote) NotificationEmails() []*string {
+	emails := make([]*string, len(quote.Notificated.Sellers)+len(quote.Notificated.Experts))
+
+	for _, seller := range quote.Notificated.Sellers {
+		emails = append(emails, seller.Email)
+	}
+
+	for _, expert := range quote.Notificated.Experts {
+		emails = append(emails, expert.Email)
+	}
+
+	return emails
+}
+
 type QuoteRepository interface {
 	Store(*Quote) error
 }
