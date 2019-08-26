@@ -1,7 +1,7 @@
 package locations
 
 import (
-	"products-quote-go/pkg/responsibles"
+	"github.com/alejo-lapix/products-quote-go/pkg/responsibles"
 )
 
 type Country struct {
@@ -23,6 +23,7 @@ type ZonesByProductID struct {
 
 type CountryRepository interface {
 	Find(ID *string) (*Country, error)
+	All() ([]*Country, error)
 	Remove(ID *string) error
 	Store(*Country) error
 	Update(ID *string, country *Country) error
@@ -30,6 +31,9 @@ type CountryRepository interface {
 
 type ZoneRepository interface {
 	Find(ID *string) (*Zone, error)
+	FindByProduct(ID *string) ([]*Zone, error)
+	FindByCountry(ID *string) ([]*Zone, error)
+	ProductIDsByZone(ID *string) ([]*string, error)
 	Remove(ID *string) error
 	Store(*Zone) error
 	Update(ID *string, zone *Zone) error
