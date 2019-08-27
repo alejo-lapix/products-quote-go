@@ -5,20 +5,21 @@ import (
 )
 
 type Country struct {
-	ID   *string
-	Name *string
+	ID   *string `json:"id"`
+	Name *string `json:"name"`
 }
 
 type Zone struct {
-	ID      *string
-	Name    *string
-	Country *Country
-	Sellers []*responsibles.User
+	ID         *string              `json:"id"`
+	Name       *string              `json:"name"`
+	CountryID  *Country             `json:"countryId"`
+	Sellers    []*responsibles.User `json:"sellers"`
+	ProductIDs []*string            `json:"productIds"`
 }
 
 type ZonesByProductID struct {
-	ProductID *string
-	Zones     []*Zone
+	ProductID *string `json:"productId"`
+	ZoneIDs   []*Zone `json:"zonesIds"`
 }
 
 type CountryRepository interface {
