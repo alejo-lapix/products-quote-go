@@ -21,12 +21,9 @@ func NewDynamoDBCountryRepository(db *dynamodb.DynamoDB) *DynamoDBCountryReposit
 
 func NewDynamoDBZoneRepository(db *dynamodb.DynamoDB) *DynamoDBZoneRepository {
 	return &DynamoDBZoneRepository{
-		DynamoDB:  db,
-		tableName: aws.String("zones"),
-		zonesByProductRepository: &dynamoDBZonesByProductIDRepository{
-			DynamoDB:  db,
-			tableName: aws.String("zonesByProductIds"),
-		},
+		DynamoDB:                 db,
+		tableName:                aws.String("zones"),
+		zonesByProductRepository: NewDynamoDBZoneByProductIDRepository(db),
 	}
 }
 

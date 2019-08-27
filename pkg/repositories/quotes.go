@@ -12,6 +12,13 @@ type DynamoDBQuoteRepository struct {
 	tableName *string
 }
 
+func NewDynamoDBQuoteRepository(db *dynamodb.DynamoDB) *DynamoDBQuoteRepository {
+	return &DynamoDBQuoteRepository{
+		DynamoDB:  db,
+		tableName: aws.String("quotes"),
+	}
+}
+
 func (repository *DynamoDBQuoteRepository) Store(quote *quotes.Quote) error {
 	item, err := dynamodbattribute.MarshalMap(quote)
 
