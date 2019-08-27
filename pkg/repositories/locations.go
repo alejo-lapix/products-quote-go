@@ -217,6 +217,22 @@ func (repository *DynamoDBZoneRepository) Update(id *string, zone *locations.Zon
 	return err
 }
 
+func (repository *DynamoDBZoneRepository) ProductsIDsByZone(ID *string) ([]*string, error) {
+	list, err := repository.zonesByProductRepository.FindByZone(ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*string, len(list))
+
+	for index, item := range list {
+		result[index] = item.ProductID
+	}
+
+	return result, nil
+}
+
 type dynamoDBZonesByProductIDRepository struct {
 	DynamoDB  *dynamodb.DynamoDB
 	tableName *string
@@ -271,4 +287,25 @@ func (repository *dynamoDBZonesByProductIDRepository) Find(productID *string) (*
 	}
 
 	return item, nil
+}
+
+func (repository *dynamoDBZonesByProductIDRepository) FindByZone(ID *string) ([]*locations.ZonesByProductID, error) {
+	items := make([]*locations.ZonesByProductID, 0)
+	output, err := repository.DynamoDB.Scan(&dynamodb.ScanInput{
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{":zoneId": {S: ID}},
+		FilterExpression:          aws.String("zoneIds CONTAINS :zoneId"),
+		TableName:                 repository.tableName,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = dynamodbattribute.UnmarshalListOfMaps(output.Items, &items)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return items, nil
 }

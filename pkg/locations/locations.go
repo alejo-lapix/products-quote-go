@@ -30,6 +30,7 @@ type ZoneRepository interface {
 	FindMany(ids []*string) ([]*Zone, error)
 	FindByProduct(ID *string) ([]*Zone, error)
 	FindByCountry(ID *string) ([]*Zone, error)
+	ProductsIDsByZone(ID *string) ([]*string, error)
 	Remove(ID *string) error
 	Store(*Zone) error
 	Update(ID *string, zone *Zone) error
@@ -39,4 +40,5 @@ type ZonesByProductIDRepository interface {
 	Store(*ZonesByProductID) error
 	Remove(productID *string) error
 	Find(productID *string) (*ZonesByProductID, error)
+	FindByZone(ID *string) ([]*ZonesByProductID, error)
 }
