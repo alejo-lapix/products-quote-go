@@ -12,6 +12,24 @@ type DynamoDBCountryRepository struct {
 	tableName *string
 }
 
+func NewDynamoDBCountryRepository(db *dynamodb.DynamoDB) *DynamoDBCountryRepository {
+	return &DynamoDBCountryRepository{
+		DynamoDB:  db,
+		tableName: aws.String("countries"),
+	}
+}
+
+func NewDynamoDBZoneRepository(db *dynamodb.DynamoDB) *DynamoDBZoneRepository {
+	return &DynamoDBZoneRepository{
+		DynamoDB:  db,
+		tableName: aws.String("zones"),
+		zonesByProductRepository: &dynamoDBZonesByProductIDRepository{
+			DynamoDB:  db,
+			tableName: aws.String("zonesByProductIds"),
+		},
+	}
+}
+
 func (repository *DynamoDBCountryRepository) Find(ID *string) (*locations.Country, error) {
 	item := &locations.Country{}
 	output, err := repository.DynamoDB.GetItem(&dynamodb.GetItemInput{
