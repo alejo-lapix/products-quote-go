@@ -1,11 +1,11 @@
 package responsibles
 
 type User struct {
-	ID    *string
-	Name  *string
-	Email *string
+	ID    *string `json:"id"`
+	Name  *string `json:"name"`
+	Email *string `json:"email"`
 	// Those are the category where this guy is an EXPERT
-	ProductIDs []*string
+	ProductIDs []*string `json:"productIds"`
 }
 
 type UserRepository interface {
