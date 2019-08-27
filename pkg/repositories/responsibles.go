@@ -12,6 +12,13 @@ type DynamoDBUserRepository struct {
 	tableName *string
 }
 
+func NewDynamoDBUserRepository(db *dynamodb.DynamoDB) *DynamoDBUserRepository {
+	return &DynamoDBUserRepository{
+		DynamoDB:  db,
+		tableName: aws.String("users"),
+	}
+}
+
 func (repository *DynamoDBUserRepository) Find(id *string) (*responsibles.User, error) {
 	item := &responsibles.User{}
 	output, err := repository.DynamoDB.GetItem(&dynamodb.GetItemInput{
