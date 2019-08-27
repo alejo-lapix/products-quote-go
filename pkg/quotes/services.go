@@ -56,7 +56,7 @@ func (service QuoteService) NewQuote(primaryProduct *products.Product, amount *f
 		})
 	}
 
-	notification.Experts, err = service.userRepository.FindByProductIDs([]*string{primaryProduct.ID})
+	notification.Experts, err = service.userRepository.FindByProductID(primaryProduct.ID)
 
 	if err != nil {
 		return nil, err
