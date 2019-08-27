@@ -12,14 +12,14 @@ type Country struct {
 type Zone struct {
 	ID         *string              `json:"id"`
 	Name       *string              `json:"name"`
-	CountryID  *Country             `json:"countryId"`
+	CountryID  *string              `json:"countryId"`
 	Sellers    []*responsibles.User `json:"sellers"`
 	ProductIDs []*string            `json:"productIds"`
 }
 
 type ZonesByProductID struct {
-	ProductID *string `json:"productId"`
-	ZoneIDs   []*Zone `json:"zonesIds"`
+	ProductID *string   `json:"productId"`
+	ZoneIDs   []*string `json:"zonesIds"`
 }
 
 type CountryRepository interface {
