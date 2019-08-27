@@ -20,7 +20,7 @@ func (service QuoteService) NewQuote(primaryProduct *products.Product, amount *f
 		Amount:  amount,
 	}}
 
-	notification := &Notificated{Sellers: zone.Sellers}
+	notification := &Notificated{}
 	group, err := service.groupRepository.FindByProduct(primaryProduct.ID)
 
 	if err != nil {
@@ -57,6 +57,12 @@ func (service QuoteService) NewQuote(primaryProduct *products.Product, amount *f
 	}
 
 	notification.Experts, err = service.userRepository.FindByProductIDs([]*string{primaryProduct.ID})
+
+	if err != nil {
+		return nil, err
+	}
+
+	notification.Sellers, err = service.userRepository.FindMany(zone.SellersIDs)
 
 	if err != nil {
 		return nil, err
