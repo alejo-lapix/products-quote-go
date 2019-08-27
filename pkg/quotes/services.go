@@ -27,22 +27,22 @@ func (service QuoteService) NewQuote(primaryProduct *products.Product, amount *f
 		return nil, err
 	}
 
-	productMap := make([]*string, len(group.Associations))
-	productIDs := make(map[string]*products.Product, len(group.Associations))
+	productIDs := make([]*string, len(group.Associations))
+	productIDsMap := make(map[string]*products.Product, len(group.Associations))
 
 	for _, association := range group.Associations {
-		productIDs[*association.ProductID] = nil
-		productMap = append(productMap, association.ProductID)
+		productIDsMap[*association.ProductID] = nil
+		productIDs = append(productIDs, association.ProductID)
 	}
 
-	productList, err := service.productRepository.FindMany(productMap)
+	productList, err := service.productRepository.FindMany(productIDs)
 
 	if err != nil {
 		return nil, err
 	}
 
 	for _, product := range productList {
-		productIDs[*product.ID] = product
+		productIDsMap[*product.ID] = product
 	}
 
 	relatedProducts.AssociatedProducts = make([]*ProductRelation, len(group.Associations))
@@ -51,7 +51,7 @@ func (service QuoteService) NewQuote(primaryProduct *products.Product, amount *f
 		relationAmount := *amount * *association.Ratio
 
 		relatedProducts.AssociatedProducts = append(relatedProducts.AssociatedProducts, &ProductRelation{
-			Product: productIDs[*association.ProductID],
+			Product: productIDsMap[*association.ProductID],
 			Amount:  &relationAmount,
 		})
 	}
@@ -62,7 +62,15 @@ func (service QuoteService) NewQuote(primaryProduct *products.Product, amount *f
 		return nil, err
 	}
 
-	quote := NewQuote(customer, zone, relatedProducts, notification)
+	return NewQuote(customer, zone, relatedProducts, notification), nil
+}
+
+func (service QuoteService) StoreNewQuote(primaryProduct *products.Product, amount *float64, customer *Customer, zone *locations.Zone) (*Quote, error) {
+	quote, err := service.NewQuote(primaryProduct, amount, customer, zone)
+
+	if err != nil {
+		return nil, err
+	}
 
 	err = service.quoteRepository.Store(quote)
 

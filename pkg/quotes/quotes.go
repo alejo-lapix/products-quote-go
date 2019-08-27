@@ -24,6 +24,10 @@ type ProductRelation struct {
 	Amount  *float64
 }
 
+func (relation *ProductRelation) Total() float64 {
+	return *relation.Product.Price * *relation.Amount
+}
+
 type Notificated struct {
 	Experts []*responsibles.User
 	Sellers []*responsibles.User
@@ -36,6 +40,16 @@ type Quote struct {
 	RelatedProducts *RelatedProducts
 	Notificated     *Notificated
 	CreatedAt       *string
+}
+
+func (quote *Quote) Total() float64 {
+	total := quote.RelatedProducts.PrimaryProduct.Total()
+
+	for _, relatedProduct := range quote.RelatedProducts.AssociatedProducts {
+		total += relatedProduct.Total()
+	}
+
+	return total
 }
 
 func (quote *Quote) NotificationEmails() []*string {
