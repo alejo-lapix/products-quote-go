@@ -11,7 +11,7 @@ type User struct {
 type UserRepository interface {
 	Find(ID *string) (*User, error)
 	FindMany(ids []*string) ([]*User, error)
-	FindByProductIDs(ids []*string) ([]*User, error)
+	FindByProductID(id *string) ([]*User, error)
 	Store(*User) error
 	Remove(ID *string) error
 }
