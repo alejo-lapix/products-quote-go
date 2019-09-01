@@ -114,7 +114,7 @@ type DynamoDBZoneRepository struct {
 }
 
 func (repository *DynamoDBZoneRepository) Find(ID *string) (*locations.Zone, error) {
-	var item *locations.Zone
+	item := &locations.Zone{}
 	output, err := repository.DynamoDB.GetItem(&dynamodb.GetItemInput{
 		Key:       map[string]*dynamodb.AttributeValue{"id": {S: ID}},
 		TableName: repository.tableName,
@@ -285,7 +285,7 @@ func (repository *dynamoDBZonesByProductIDRepository) Remove(productID *string) 
 }
 
 func (repository *dynamoDBZonesByProductIDRepository) Find(productID *string) (*locations.ZonesByProductID, error) {
-	var item *locations.ZonesByProductID
+	item := &locations.ZonesByProductID{}
 	output, err := repository.DynamoDB.GetItem(&dynamodb.GetItemInput{
 		Key:       map[string]*dynamodb.AttributeValue{"productId": {S: productID}},
 		TableName: repository.tableName,

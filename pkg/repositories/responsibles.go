@@ -109,3 +109,20 @@ func (repository *DynamoDBUserRepository) Remove(ID *string) error {
 
 	return err
 }
+
+func (repository *DynamoDBUserRepository) All() ([]*responsibles.User, error) {
+	items := make([]*responsibles.User, 0)
+	output, err := repository.DynamoDB.Scan(&dynamodb.ScanInput{TableName: repository.tableName})
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = dynamodbattribute.UnmarshalListOfMaps(output.Items, &items)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return items, nil
+}

@@ -10,6 +10,7 @@ type User struct {
 
 type UserRepository interface {
 	Find(ID *string) (*User, error)
+	All() (*[]User, error)
 	FindMany(ids []*string) ([]*User, error)
 	FindByProductID(id *string) ([]*User, error)
 	Store(*User) error
