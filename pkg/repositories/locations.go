@@ -176,6 +176,7 @@ func (repository *DynamoDBZoneRepository) FindByCountry(ID *string) ([]*location
 		IndexName:                 aws.String("countryId-index"),
 		KeyConditionExpression:    aws.String("countryId = :countryId"),
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{"countryId": {S: ID}},
+		TableName:                 repository.tableName,
 	})
 
 	if err != nil {
