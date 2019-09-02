@@ -3,6 +3,7 @@ package repositories
 import (
 	"github.com/alejo-lapix/products-quote-go/pkg/locations"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
@@ -175,7 +176,7 @@ func (repository *DynamoDBZoneRepository) FindByCountry(ID *string) ([]*location
 	output, err := repository.DynamoDB.Query(&dynamodb.QueryInput{
 		IndexName:                 aws.String("countryId-index"),
 		KeyConditionExpression:    aws.String("countryId = :countryId"),
-		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{"countryId": {S: ID}},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{":countryId": {S: ID}},
 		TableName:                 repository.tableName,
 	})
 
@@ -293,6 +294,12 @@ func (repository *dynamoDBZonesByProductIDRepository) Find(productID *string) (*
 	})
 
 	if err != nil {
+		if aerr, ok := err.(awserr.Error); ok {
+			if aerr.Code() == dynamodb.ErrCodeResourceNotFoundException {
+				return nil, nil
+			}
+		}
+
 		return nil, err
 	}
 
@@ -309,11 +316,17 @@ func (repository *dynamoDBZonesByProductIDRepository) FindByZone(ID *string) ([]
 	items := make([]*locations.ZonesByProductID, 0)
 	output, err := repository.DynamoDB.Scan(&dynamodb.ScanInput{
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{":zoneId": {S: ID}},
-		FilterExpression:          aws.String("zoneIds CONTAINS :zoneId"),
+		FilterExpression:          aws.String("contains(zoneIds, :zoneId)"),
 		TableName:                 repository.tableName,
 	})
 
 	if err != nil {
+		if aerr, ok := err.(awserr.Error); ok {
+			if aerr.Code() == dynamodb.ErrCodeResourceNotFoundException {
+				return make([]*locations.ZonesByProductID, 0), nil
+			}
+		}
+
 		return nil, err
 	}
 
