@@ -55,12 +55,12 @@ func (quote *Quote) Total() float64 {
 func (quote *Quote) NotificationEmails() []*string {
 	emails := make([]*string, len(quote.Notificated.Sellers)+len(quote.Notificated.Experts))
 
-	for _, seller := range quote.Notificated.Sellers {
-		emails = append(emails, seller.Email)
+	for index, _ := range quote.Notificated.Sellers {
+		emails[index] = quote.Notificated.Sellers[index].Email
 	}
 
-	for _, expert := range quote.Notificated.Experts {
-		emails = append(emails, expert.Email)
+	for index, _ := range quote.Notificated.Experts {
+		emails[len(quote.Notificated.Sellers)+index] = quote.Notificated.Experts[index].Email
 	}
 
 	return emails
