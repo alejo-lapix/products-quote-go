@@ -30,9 +30,9 @@ func (service QuoteService) NewQuote(primaryProduct *products.Product, amount *f
 	productIDs := make([]*string, len(group.Associations))
 	productIDsMap := make(map[string]*products.Product, len(group.Associations))
 
-	for _, association := range group.Associations {
+	for index, association := range group.Associations {
 		productIDsMap[*association.ProductID] = nil
-		productIDs = append(productIDs, association.ProductID)
+		productIDs[index] = group.Associations[index].ProductID
 	}
 
 	productList, err := service.productRepository.FindMany(productIDs)
@@ -47,13 +47,13 @@ func (service QuoteService) NewQuote(primaryProduct *products.Product, amount *f
 
 	relatedProducts.AssociatedProducts = make([]*ProductRelation, len(group.Associations))
 
-	for _, association := range group.Associations {
+	for index, association := range group.Associations {
 		relationAmount := *amount * *association.Ratio
 
-		relatedProducts.AssociatedProducts = append(relatedProducts.AssociatedProducts, &ProductRelation{
+		relatedProducts.AssociatedProducts[index] = &ProductRelation{
 			Product: productIDsMap[*association.ProductID],
 			Amount:  &relationAmount,
-		})
+		}
 	}
 
 	notification.Experts, err = service.userRepository.FindByProductID(primaryProduct.ID)
@@ -62,10 +62,12 @@ func (service QuoteService) NewQuote(primaryProduct *products.Product, amount *f
 		return nil, err
 	}
 
-	notification.Sellers, err = service.userRepository.FindMany(zone.SellersIDs)
+	if len(zone.SellersIDs) > 0 {
+		notification.Sellers, err = service.userRepository.FindMany(zone.SellersIDs)
 
-	if err != nil {
-		return nil, err
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return NewQuote(customer, zone, relatedProducts, notification), nil

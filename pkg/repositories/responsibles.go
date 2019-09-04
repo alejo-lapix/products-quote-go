@@ -69,7 +69,7 @@ func (repository *DynamoDBUserRepository) FindByProductID(id *string) ([]*respon
 	items := make([]*responsibles.User, 0)
 	output, err := repository.DynamoDB.Scan(&dynamodb.ScanInput{
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{":id": {S: id}},
-		FilterExpression:          aws.String("productIds contains :id"),
+		FilterExpression:          aws.String("contains(productIds, :id)"),
 		TableName:                 repository.tableName,
 	})
 

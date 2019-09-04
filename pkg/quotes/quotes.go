@@ -9,19 +9,19 @@ import (
 )
 
 type Customer struct {
-	Name  *string
-	Email *string
-	Phone *string
+	Name  *string `json:"name"`
+	Email *string `json:"email"`
+	Phone *string `json:"phone"`
 }
 
 type RelatedProducts struct {
-	PrimaryProduct     *ProductRelation
-	AssociatedProducts []*ProductRelation
+	PrimaryProduct     *ProductRelation   `json:"primaryProduct"`
+	AssociatedProducts []*ProductRelation `json:"associatedProducts"`
 }
 
 type ProductRelation struct {
-	Product *products.Product
-	Amount  *float64
+	Product *products.Product `json:"product"`
+	Amount  *float64          `json:"amount"`
 }
 
 func (relation *ProductRelation) Total() float64 {
@@ -29,17 +29,17 @@ func (relation *ProductRelation) Total() float64 {
 }
 
 type Notificated struct {
-	Experts []*responsibles.User
-	Sellers []*responsibles.User
+	Experts []*responsibles.User `json:"experts"`
+	Sellers []*responsibles.User `json:"sellers"`
 }
 
 type Quote struct {
-	ID              *string
-	Customer        *Customer
-	Zone            *loc.Zone
-	RelatedProducts *RelatedProducts
-	Notificated     *Notificated
-	CreatedAt       *string
+	ID              *string          `json:"id"`
+	Customer        *Customer        `json:"customer"`
+	Zone            *loc.Zone        `json:"zone"`
+	RelatedProducts *RelatedProducts `json:"relatedProducts"`
+	Notificated     *Notificated     `json:"notificated"`
+	CreatedAt       *string          `json:"createdAt"`
 }
 
 func (quote *Quote) Total() float64 {
