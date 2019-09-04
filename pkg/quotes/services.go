@@ -8,10 +8,10 @@ import (
 )
 
 type QuoteService struct {
-	userRepository    responsibles.UserRepository
-	groupRepository   groups.GroupRepository
-	productRepository products.ProductRepository
-	quoteRepository   QuoteRepository
+	UserRepository    responsibles.UserRepository
+	GroupRepository   groups.GroupRepository
+	ProductRepository products.ProductRepository
+	QuoteRepository   QuoteRepository
 }
 
 func (service QuoteService) NewQuote(primaryProduct *products.Product, amount *float64, customer *Customer, zone *locations.Zone) (*Quote, error) {
@@ -21,7 +21,7 @@ func (service QuoteService) NewQuote(primaryProduct *products.Product, amount *f
 	}}
 
 	notification := &Notificated{}
-	group, err := service.groupRepository.FindByProduct(primaryProduct.ID)
+	group, err := service.GroupRepository.FindByProduct(primaryProduct.ID)
 
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func (service QuoteService) NewQuote(primaryProduct *products.Product, amount *f
 		productIDs[index] = group.Associations[index].ProductID
 	}
 
-	productList, err := service.productRepository.FindMany(productIDs)
+	productList, err := service.ProductRepository.FindMany(productIDs)
 
 	if err != nil {
 		return nil, err
@@ -56,14 +56,14 @@ func (service QuoteService) NewQuote(primaryProduct *products.Product, amount *f
 		}
 	}
 
-	notification.Experts, err = service.userRepository.FindByProductID(primaryProduct.ID)
+	notification.Experts, err = service.UserRepository.FindByProductID(primaryProduct.ID)
 
 	if err != nil {
 		return nil, err
 	}
 
 	if len(zone.SellersIDs) > 0 {
-		notification.Sellers, err = service.userRepository.FindMany(zone.SellersIDs)
+		notification.Sellers, err = service.UserRepository.FindMany(zone.SellersIDs)
 
 		if err != nil {
 			return nil, err
@@ -80,7 +80,7 @@ func (service QuoteService) StoreNewQuote(primaryProduct *products.Product, amou
 		return nil, err
 	}
 
-	err = service.quoteRepository.Store(quote)
+	err = service.QuoteRepository.Store(quote)
 
 	if err != nil {
 		return nil, err
