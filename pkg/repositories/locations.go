@@ -303,6 +303,10 @@ func (repository *dynamoDBZonesByProductIDRepository) Find(productID *string) (*
 		return nil, err
 	}
 
+	if output.Item == nil {
+		return nil, nil
+	}
+
 	err = dynamodbattribute.UnmarshalMap(output.Item, item)
 
 	if err != nil {

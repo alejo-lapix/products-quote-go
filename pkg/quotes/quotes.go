@@ -68,6 +68,9 @@ func (quote *Quote) NotificationEmails() []*string {
 
 type QuoteRepository interface {
 	Store(*Quote) error
+	Find(ID *string) (*Quote, error)
+	Paginate(year, month, lastPage *string) (list []*Quote, nextKey *string, err error)
+	All() ([]*Quote, error)
 }
 
 func NewQuote(customer *Customer, zone *loc.Zone, relatedProducts *RelatedProducts, notificated *Notificated) *Quote {
