@@ -48,10 +48,11 @@ func (service QuoteService) NewQuote(primaryProduct *products.Product, amount *f
 	relatedProducts.AssociatedProducts = make([]*ProductRelation, len(group.Associations))
 
 	for index, association := range group.Associations {
+		product := productIDsMap[*association.ProductID]
 		relationAmount := *amount * *association.Ratio
 
 		relatedProducts.AssociatedProducts[index] = &ProductRelation{
-			Product: productIDsMap[*association.ProductID],
+			Product: product,
 			Amount:  &relationAmount,
 		}
 	}

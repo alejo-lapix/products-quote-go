@@ -58,7 +58,7 @@ func (repository *DynamoDBQuoteRepository) Paginate(year, month, lastEvaluatedKe
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{":keyValue": {S: aws.String(fmt.Sprintf("%s-%s", *year, *month))}},
 		IndexName:                 aws.String("monthAndYear-createdAt-index"),
 		KeyConditionExpression:    aws.String("monthAndYear = :keyValue"),
-		Limit:                     aws.Int64(2),
+		Limit:                     aws.Int64(20),
 		ScanIndexForward:          aws.Bool(false),
 		TableName:                 repository.tableName,
 	}
@@ -114,7 +114,7 @@ func (repository *DynamoDBQuoteRepository) Store(quote *quotes.Quote) error {
 	}
 
 	item["monthAndYear"] = &dynamodb.AttributeValue{
-		S: aws.String(fmt.Sprintf("%d-%s", createdAtTime.Year(), createdAtTime.Month())),
+		S: aws.String(fmt.Sprintf("%d-%d", createdAtTime.Year(), int(createdAtTime.Month()))),
 	}
 
 	_, err = repository.DynamoDB.PutItem(&dynamodb.PutItemInput{
