@@ -167,6 +167,10 @@ func (repository *DynamoDBZoneRepository) FindByProduct(ID *string) ([]*location
 		return nil, err
 	}
 
+	if item == nil {
+		return make([]*locations.Zone, 0), nil
+	}
+
 	return repository.FindMany(item.ZoneIDs)
 }
 
