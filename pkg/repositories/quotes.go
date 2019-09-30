@@ -63,7 +63,7 @@ func (repository *DynamoDBQuoteRepository) Paginate(year, month, quoteType, last
 		TableName:                 repository.tableName,
 	}
 
-	if quoteType != nil {
+	if quoteType != nil && *quoteType != "" {
 		input.FilterExpression = aws.String("#typeQuote = :typeValue")
 		input.ExpressionAttributeNames = map[string]*string{"#typeQuote": aws.String("type")}
 		input.ExpressionAttributeValues[":typeValue"] = &dynamodb.AttributeValue{S: quoteType}
