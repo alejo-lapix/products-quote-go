@@ -14,13 +14,62 @@ type QuoteService struct {
 	QuoteRepository   QuoteRepository
 }
 
+func (service QuoteService) NewPrivateQuote(primaryProduct *products.Product, amount *float64, customer *Customer) (*Quote, error) {
+	relatedProducts, err := service.relatedProducts(primaryProduct, amount)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return NewPrivateQuote(customer, relatedProducts), nil
+}
+
 func (service QuoteService) NewQuote(primaryProduct *products.Product, amount *float64, customer *Customer, zone *locations.Zone) (*Quote, error) {
+	notification := &Notificated{}
+	relatedProducts, err := service.relatedProducts(primaryProduct, amount)
+
+	if err != nil {
+		return nil, err
+	}
+
+	notification.Experts, err = service.UserRepository.FindByProductID(primaryProduct.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(zone.SellersIDs) > 0 {
+		notification.Sellers, err = service.UserRepository.FindMany(zone.SellersIDs)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return NewQuote(customer, zone, relatedProducts, notification), nil
+}
+
+func (service QuoteService) StoreNewQuote(primaryProduct *products.Product, amount *float64, customer *Customer, zone *locations.Zone) (*Quote, error) {
+	quote, err := service.NewQuote(primaryProduct, amount, customer, zone)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = service.QuoteRepository.Store(quote)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return quote, nil
+}
+
+func (service *QuoteService) relatedProducts(primaryProduct *products.Product, amount *float64) (*RelatedProducts, error) {
 	relatedProducts := &RelatedProducts{PrimaryProduct: &ProductRelation{
 		Product: primaryProduct,
 		Amount:  amount,
 	}}
-
-	notification := &Notificated{}
 	group, err := service.GroupRepository.FindByProduct(primaryProduct.ID)
 
 	if err != nil {
@@ -57,35 +106,5 @@ func (service QuoteService) NewQuote(primaryProduct *products.Product, amount *f
 		}
 	}
 
-	notification.Experts, err = service.UserRepository.FindByProductID(primaryProduct.ID)
-
-	if err != nil {
-		return nil, err
-	}
-
-	if len(zone.SellersIDs) > 0 {
-		notification.Sellers, err = service.UserRepository.FindMany(zone.SellersIDs)
-
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return NewQuote(customer, zone, relatedProducts, notification), nil
-}
-
-func (service QuoteService) StoreNewQuote(primaryProduct *products.Product, amount *float64, customer *Customer, zone *locations.Zone) (*Quote, error) {
-	quote, err := service.NewQuote(primaryProduct, amount, customer, zone)
-
-	if err != nil {
-		return nil, err
-	}
-
-	err = service.QuoteRepository.Store(quote)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return quote, nil
+	return relatedProducts, nil
 }
