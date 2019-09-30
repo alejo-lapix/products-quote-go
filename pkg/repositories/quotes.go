@@ -51,7 +51,7 @@ func (repository *DynamoDBQuoteRepository) Find(ID *string) (*quotes.Quote, erro
 	return item, nil
 }
 
-func (repository *DynamoDBQuoteRepository) Paginate(year, month, lastEvaluatedKey *string) ([]*quotes.Quote, *string, error) {
+func (repository *DynamoDBQuoteRepository) Paginate(year, month, quoteType, lastEvaluatedKey *string) ([]*quotes.Quote, *string, error) {
 	var key *string
 	quoteList := make([]*quotes.Quote, 0)
 	input := dynamodb.QueryInput{
@@ -61,6 +61,12 @@ func (repository *DynamoDBQuoteRepository) Paginate(year, month, lastEvaluatedKe
 		Limit:                     aws.Int64(20),
 		ScanIndexForward:          aws.Bool(false),
 		TableName:                 repository.tableName,
+	}
+
+	if quoteType != nil {
+		input.FilterExpression = aws.String("#typeQuote = :typeValue")
+		input.ExpressionAttributeNames = map[string]*string{"#typeQuote": aws.String("type")}
+		input.ExpressionAttributeValues[":typeValue"] = &dynamodb.AttributeValue{S: quoteType}
 	}
 
 	if lastEvaluatedKey != nil {

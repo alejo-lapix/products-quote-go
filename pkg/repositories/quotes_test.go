@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"github.com/alejo-lapix/products-quote-go/pkg/quotes"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -20,12 +21,14 @@ func TestDynamoDBQuoteRepository_Paginate(t *testing.T) {
 	type args struct {
 		year             *string
 		month            *string
+		typeQuote        *string
 		lastEvaluatedKey *string
 	}
 
 	arguments := &args{
 		year:             aws.String("2019"),
 		month:            aws.String("8"),
+		typeQuote:        aws.String(string(quotes.PUBLIC)),
 		lastEvaluatedKey: nil,
 	}
 
@@ -42,6 +45,7 @@ func TestDynamoDBQuoteRepository_Paginate(t *testing.T) {
 			args: &args{
 				year:             aws.String("2019"),
 				month:            aws.String("8"),
+				typeQuote:        aws.String(string(quotes.PUBLIC)),
 				lastEvaluatedKey: aws.String("INVALID KEY"),
 			},
 			wantErr:      true,
@@ -65,7 +69,7 @@ func TestDynamoDBQuoteRepository_Paginate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			repository := repository()
-			got, got1, err := repository.Paginate(tt.args.year, tt.args.month, tt.args.lastEvaluatedKey)
+			got, got1, err := repository.Paginate(tt.args.year, tt.args.month, tt.args.typeQuote, tt.args.lastEvaluatedKey)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Paginate() error = %v, wantErr %v", err, tt.wantErr)
 				return
