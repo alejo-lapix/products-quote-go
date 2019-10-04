@@ -3,7 +3,6 @@ package repositories
 import (
 	"github.com/alejo-lapix/products-quote-go/pkg/locations"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
@@ -24,7 +23,6 @@ func NewDynamoDBZoneRepository(db *dynamodb.DynamoDB) *DynamoDBZoneRepository {
 	return &DynamoDBZoneRepository{
 		DynamoDB:                 db,
 		tableName:                aws.String("zones"),
-		zonesByProductRepository: NewDynamoDBZoneByProductIDRepository(db),
 	}
 }
 
@@ -111,7 +109,6 @@ func (repository *DynamoDBCountryRepository) Update(ID *string, country *locatio
 type DynamoDBZoneRepository struct {
 	tableName                *string
 	DynamoDB                 *dynamodb.DynamoDB
-	zonesByProductRepository locations.ZonesByProductIDRepository
 }
 
 func (repository *DynamoDBZoneRepository) Find(ID *string) (*locations.Zone, error) {
@@ -158,20 +155,6 @@ func (repository *DynamoDBZoneRepository) FindMany(items []*string) ([]*location
 	}
 
 	return list, nil
-}
-
-func (repository *DynamoDBZoneRepository) FindByProduct(ID *string) ([]*locations.Zone, error) {
-	item, err := repository.zonesByProductRepository.Find(ID)
-
-	if err != nil {
-		return nil, err
-	}
-
-	if item == nil {
-		return make([]*locations.Zone, 0), nil
-	}
-
-	return repository.FindMany(item.ZoneIDs)
 }
 
 func (repository *DynamoDBZoneRepository) FindByCountry(ID *string) ([]*locations.Zone, error) {
@@ -236,113 +219,4 @@ func (repository *DynamoDBZoneRepository) Update(id *string, zone *locations.Zon
 	})
 
 	return err
-}
-
-func (repository *DynamoDBZoneRepository) ProductsIDsByZone(ID *string) ([]*string, error) {
-	list, err := repository.zonesByProductRepository.FindByZone(ID)
-
-	if err != nil {
-		return nil, err
-	}
-
-	result := make([]*string, len(list))
-
-	for index, item := range list {
-		result[index] = item.ProductID
-	}
-
-	return result, nil
-}
-
-type dynamoDBZonesByProductIDRepository struct {
-	DynamoDB  *dynamodb.DynamoDB
-	tableName *string
-}
-
-func NewDynamoDBZoneByProductIDRepository(db *dynamodb.DynamoDB) *dynamoDBZonesByProductIDRepository {
-	return &dynamoDBZonesByProductIDRepository{
-		DynamoDB:  db,
-		tableName: aws.String("zonesByProductId"),
-	}
-}
-
-func (repository *dynamoDBZonesByProductIDRepository) Store(element *locations.ZonesByProductID) error {
-	item, err := dynamodbattribute.MarshalMap(element)
-
-	if err != nil {
-		return err
-	}
-
-	_, err = repository.DynamoDB.PutItem(&dynamodb.PutItemInput{
-		Item:      item,
-		TableName: repository.tableName,
-	})
-
-	return err
-}
-
-func (repository *dynamoDBZonesByProductIDRepository) Remove(productID *string) error {
-	_, err := repository.DynamoDB.DeleteItem(&dynamodb.DeleteItemInput{
-		Key:       map[string]*dynamodb.AttributeValue{"productId": {S: productID}},
-		TableName: repository.tableName,
-	})
-
-	return err
-}
-
-func (repository *dynamoDBZonesByProductIDRepository) Find(productID *string) (*locations.ZonesByProductID, error) {
-	item := &locations.ZonesByProductID{}
-	output, err := repository.DynamoDB.GetItem(&dynamodb.GetItemInput{
-		Key:       map[string]*dynamodb.AttributeValue{"productId": {S: productID}},
-		TableName: repository.tableName,
-	})
-
-	if err != nil {
-		if aerr, ok := err.(awserr.Error); ok {
-			if aerr.Code() == dynamodb.ErrCodeResourceNotFoundException {
-				return nil, nil
-			}
-		}
-
-		return nil, err
-	}
-
-	if output.Item == nil {
-		return nil, nil
-	}
-
-	err = dynamodbattribute.UnmarshalMap(output.Item, item)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return item, nil
-}
-
-func (repository *dynamoDBZonesByProductIDRepository) FindByZone(ID *string) ([]*locations.ZonesByProductID, error) {
-	items := make([]*locations.ZonesByProductID, 0)
-	output, err := repository.DynamoDB.Scan(&dynamodb.ScanInput{
-		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{":zoneId": {S: ID}},
-		FilterExpression:          aws.String("contains(zoneIds, :zoneId)"),
-		TableName:                 repository.tableName,
-	})
-
-	if err != nil {
-		if aerr, ok := err.(awserr.Error); ok {
-			if aerr.Code() == dynamodb.ErrCodeResourceNotFoundException {
-				return make([]*locations.ZonesByProductID, 0), nil
-			}
-		}
-
-		return nil, err
-	}
-
-	err = dynamodbattribute.UnmarshalListOfMaps(output.Items, &items)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return items, nil
 }

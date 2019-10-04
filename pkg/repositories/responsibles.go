@@ -65,12 +65,15 @@ func (repository *DynamoDBUserRepository) FindMany(items []*string) ([]*responsi
 	return list, nil
 }
 
-func (repository *DynamoDBUserRepository) FindByProductID(id *string) ([]*responsibles.User, error) {
+func (repository *DynamoDBUserRepository) FindByCategoryAndZone(categoryID, zoneID *string) ([]*responsibles.User, error) {
 	items := make([]*responsibles.User, 0)
 	output, err := repository.DynamoDB.Scan(&dynamodb.ScanInput{
-		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{":id": {S: id}},
-		FilterExpression:          aws.String("contains(productIds, :id)"),
-		TableName:                 repository.tableName,
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":categoryId": {S: categoryID},
+			":zoneId":      {S: zoneID},
+		},
+		FilterExpression: aws.String("contains(categoryIds, :categoryId) AND contains(zoneIds, :zoneId)"),
+		TableName:        repository.tableName,
 	})
 
 	if err != nil {

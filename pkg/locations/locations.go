@@ -12,11 +12,6 @@ type Zone struct {
 	SellersIDs []*string `json:"sellersIds"`
 }
 
-type ZonesByProductID struct {
-	ProductID *string   `json:"productId"`
-	ZoneIDs   []*string `json:"zonesIds"`
-}
-
 type CountryRepository interface {
 	Find(ID *string) (*Country, error)
 	All() ([]*Country, error)
@@ -28,17 +23,8 @@ type CountryRepository interface {
 type ZoneRepository interface {
 	Find(ID *string) (*Zone, error)
 	FindMany(ids []*string) ([]*Zone, error)
-	FindByProduct(ID *string) ([]*Zone, error)
 	FindByCountry(ID *string) ([]*Zone, error)
-	ProductsIDsByZone(ID *string) ([]*string, error)
 	Remove(ID *string) error
 	Store(*Zone) error
 	Update(ID *string, zone *Zone) error
-}
-
-type ZonesByProductIDRepository interface {
-	Store(*ZonesByProductID) error
-	Remove(productID *string) error
-	Find(productID *string) (*ZonesByProductID, error)
-	FindByZone(ID *string) ([]*ZonesByProductID, error)
 }

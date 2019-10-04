@@ -1,6 +1,7 @@
 package quotes
 
 import (
+	"github.com/alejo-lapix/products-go/pkg/categories"
 	"github.com/alejo-lapix/products-go/pkg/products"
 	"github.com/alejo-lapix/products-quote-go/pkg/locations"
 	"github.com/alejo-lapix/products-quote-go/pkg/responsibles"
@@ -8,12 +9,14 @@ import (
 )
 
 type QuoteService struct {
-	UserRepository    responsibles.UserRepository
-	GroupRepository   groups.GroupRepository
-	ProductRepository products.ProductRepository
-	QuoteRepository   QuoteRepository
+	UserRepository     responsibles.UserRepository
+	GroupRepository    groups.GroupRepository
+	QuoteRepository    QuoteRepository
+	ProductRepository  products.ProductRepository
+	CategoryRepository categories.CategoryRepository
 }
 
+// NewPrivateQuote creates a "contact" quote. This quote does not have zone o notificated users.
 func (service QuoteService) NewPrivateQuote(primaryProduct *products.Product, amount *float64, customer *Customer) (*Quote, error) {
 	relatedProducts, err := service.relatedProducts(primaryProduct, amount)
 
@@ -24,6 +27,9 @@ func (service QuoteService) NewPrivateQuote(primaryProduct *products.Product, am
 	return NewPrivateQuote(customer, relatedProducts), nil
 }
 
+// NewQuote Creates a new Quote from a given product, amount, customer and zone.
+// The related products are taken from the primary's associated products. The
+// product's main category give us the people who is going to receive the notifications.
 func (service QuoteService) NewQuote(primaryProduct *products.Product, amount *float64, customer *Customer, zone *locations.Zone) (*Quote, error) {
 	notification := &Notificated{}
 	relatedProducts, err := service.relatedProducts(primaryProduct, amount)
@@ -32,7 +38,13 @@ func (service QuoteService) NewQuote(primaryProduct *products.Product, amount *f
 		return nil, err
 	}
 
-	notification.Experts, err = service.UserRepository.FindByProductID(primaryProduct.ID)
+	parentCategory, err := service.CategoryRepository.FindMainCategory(primaryProduct.CategoryID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	notification.Experts, err = service.UserRepository.FindByCategoryAndZone(parentCategory.ID, zone.ID)
 
 	if err != nil {
 		return nil, err
@@ -49,6 +61,7 @@ func (service QuoteService) NewQuote(primaryProduct *products.Product, amount *f
 	return NewQuote(customer, zone, relatedProducts, notification), nil
 }
 
+// StoreNewQuote creates a new quote and persist it in the given repository.
 func (service QuoteService) StoreNewQuote(primaryProduct *products.Product, amount *float64, customer *Customer, zone *locations.Zone) (*Quote, error) {
 	quote, err := service.NewQuote(primaryProduct, amount, customer, zone)
 
@@ -65,6 +78,8 @@ func (service QuoteService) StoreNewQuote(primaryProduct *products.Product, amou
 	return quote, nil
 }
 
+// TODO: move the logic that retrieve the products to the group repository.
+// relatedProducts get the products that are associated with the give product
 func (service *QuoteService) relatedProducts(primaryProduct *products.Product, amount *float64) (*RelatedProducts, error) {
 	relatedProducts := &RelatedProducts{PrimaryProduct: &ProductRelation{
 		Product: primaryProduct,
